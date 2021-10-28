@@ -52,7 +52,7 @@ protected:
 	>::type;
 	using Policies = Policies_;
 
-	using Threading = typename SelectThreading<Policies_, HasTypeThreading<Policies_>::value>::Type;
+	using Threading = typename SelectThreading<Policies, HasTypeThreading<Policies_>::value>::Type;
 
 	using ArgumentPassingMode = typename SelectArgumentPassingMode<
 		Policies_,
@@ -107,22 +107,20 @@ public:
 
 	HeterEventDispatcherBase & operator = (const HeterEventDispatcherBase & other)
 	{
-		eventCallbackListMap = other;
+		eventCallbackListMap = other.eventCallbackListMap;
+		return *this;
 	}
 
 	HeterEventDispatcherBase & operator = (HeterEventDispatcherBase && other) noexcept
 	{
-		eventCallbackListMap = std::move(other);
+		eventCallbackListMap = std::move(other.eventCallbackListMap);
+		return *this;
 	}
 
 	void swap(HeterEventDispatcherBase & other) noexcept {
 		using std::swap;
 
 		swap(eventCallbackListMap, other.eventCallbackListMap);
-	}
-
-	friend void swap(HeterEventDispatcherBase & first, HeterEventDispatcherBase & second) noexcept {
-		first.swap(second);
 	}
 
 	template <typename C>
@@ -154,6 +152,16 @@ public:
 		CallbackList_ * callableList = doFindCallableList(event);
 		if(callableList) {
 			return callableList->remove(handle);
+		}
+
+		return false;
+	}
+
+	bool hasAnyListener(const Event & event) const
+	{
+		const CallbackList_ * callableList = doFindCallableList(event);
+		if(callableList) {
+			return ! callableList->empty();
 		}
 
 		return false;
@@ -313,6 +321,10 @@ private:
 
 public:
 	using super::super;
+
+	friend void swap(HeterEventDispatcher & first, HeterEventDispatcher & second) noexcept {
+		first.swap(second);
+	}
 };
 
 

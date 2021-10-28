@@ -120,22 +120,20 @@ public:
 
 	EventDispatcherBase & operator = (const EventDispatcherBase & other)
 	{
-		eventCallbackListMap = other;
+		eventCallbackListMap = other.eventCallbackListMap;
+		return *this;
 	}
 
 	EventDispatcherBase & operator = (EventDispatcherBase && other) noexcept
 	{
-		eventCallbackListMap = std::move(other);
+		eventCallbackListMap = std::move(other.eventCallbackListMap);
+		return *this;
 	}
 
 	void swap(EventDispatcherBase & other) noexcept {
 		using std::swap;
 		
 		swap(eventCallbackListMap, other.eventCallbackListMap);
-	}
-	
-	friend void swap(EventDispatcherBase & first, EventDispatcherBase & second) noexcept {
-		first.swap(second);
 	}
 
 	Handle appendListener(const Event & event, const Callback & callback)
@@ -164,6 +162,16 @@ public:
 		CallbackList_ * callableList = doFindCallableList(event);
 		if(callableList) {
 			return callableList->remove(handle);
+		}
+
+		return false;
+	}
+
+	bool hasAnyListener(const Event & event) const
+	{
+		const CallbackList_ * callableList = doFindCallableList(event);
+		if(callableList) {
+			return ! callableList->empty();
 		}
 
 		return false;
@@ -270,7 +278,7 @@ private:
 		}
 
 		template <typename T, typename Self, typename ...A>
-		static auto forEach(const Self * self, A && ...args)
+		static auto forEach(const Self * /*self*/, A && ... /*args*/)
 			-> typename std::enable_if<! HasFunctionMixinBeforeDispatch<T, A...>::value, bool>::type {
 			return true;
 		}
@@ -302,6 +310,10 @@ private:
 
 public:
 	using super::super;
+	
+	friend void swap(EventDispatcher & first, EventDispatcher & second) noexcept {
+		first.swap(second);
+	}
 };
 
 
