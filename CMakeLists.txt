@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(project_name VERSION 0.1.0)
+project(worker_crew_manager VERSION 0.1.0)
+
+
+#Setting compilation flags 
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -lcap -O0")
+endif()
 
 #Add all .cpp and .c files in src folder to compile list
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp
@@ -13,7 +19,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 add_executable(${CMAKE_PROJECT_NAME} ${SRC_FILES})
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
-                      
+                      pthread
                       )
 
 
