@@ -12,13 +12,14 @@
 namespace ir {
   
 class WorkerManager {
-private:
 
+public:
   struct Event {
     int e;
     int priority;
   };
 
+private:
   struct Compare {
     template <typename T>
     bool operator() (const T & a, const T & b) const {
@@ -45,10 +46,10 @@ private:
   static void *WorkerThread(void *);
 
 public:
-  static PriorityEventQueue CreateWorkerCrew(int num_threads, std::string worker_name);
-  static bool KillWorkerCrew(std::string, std::chrono::duration<std::chrono::milliseconds>);
+  static PriorityEventQueue *CreateWorkerCrew(int num_threads, std::string worker_name);
+  static bool KillWorkerCrew(std::string);
 
-  static PriorityEventQueue get_queue(std::string);
+  static PriorityEventQueue *get_queue(std::string);
 };
 
 }
