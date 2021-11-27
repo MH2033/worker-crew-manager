@@ -46,7 +46,7 @@ private:
   static void *WorkerThread(void *);
 
 public:
-  static PriorityEventQueue *CreateWorkerCrew(int num_threads, std::string worker_name);
+  static PriorityEventQueue *CreateWorkerCrew(int num_workers, std::string worker_name);
   static bool KillWorkerCrew(std::string);
 
   static PriorityEventQueue *get_queue(std::string);
