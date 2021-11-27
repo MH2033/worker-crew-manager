@@ -22,13 +22,13 @@ void *WorkerManager::WorkerThread(void *param){
   pthread_exit(NULL);
 }
 
-WorkerManager::PriorityEventQueue *WorkerManager::CreateWorkerCrew(int num_threads, std::string worker_name){
+WorkerManager::PriorityEventQueue *WorkerManager::CreateWorkerCrew(int num_workers, std::string worker_name){
   if(workers.count(worker_name) > 0)
     throw runtime_error("Worker crew already exists");
 
   WorkerCrew crew;
   crew.worker_queue = new PriorityEventQueue;
-  for(int i = 0; i < num_threads; i++){
+  for(int i = 0; i < num_workers; i++){
     pthread_t tid;
     int ret = pthread_create(&tid, NULL, WorkerThread, crew.worker_queue);
     if(ret != 0){
@@ -47,8 +47,9 @@ bool WorkerManager::KillWorkerCrew(std::string worker_name) {
     //Clear remaining events from queue
     queue->clearEvents();
 
-    //Issue the termination event
-    queue->enqueue(Event{TERMINATION_EVENT, 0}, nullptr);
+    //Issue the termination event to all threads
+    for(auto i:workers[worker_name].thread_ids)
+      queue->enqueue(Event{TERMINATION_EVENT, 0}, nullptr);
 
     //Wait for the threads to join
     for(auto i:workers[worker_name].thread_ids)
