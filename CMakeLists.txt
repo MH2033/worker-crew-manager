@@ -4,7 +4,7 @@ project(worker_crew_manager VERSION 0.1.0)
 
 #Setting compilation flags 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -lcap -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -O0")
 endif()
 
 #Add all .cpp and .c files in src folder to compile list
