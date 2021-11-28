@@ -47,7 +47,7 @@ private:
 
 public:
   static PriorityEventQueue *CreateWorkerCrew(int num_workers, std::string worker_name);
-  static bool KillWorkerCrew(std::string);
+  static bool KillWorkerCrew(std::string, bool force_clear_queue);
 
   static PriorityEventQueue *get_queue(std::string);
 };

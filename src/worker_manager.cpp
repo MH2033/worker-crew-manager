@@ -41,11 +41,12 @@ WorkerManager::PriorityEventQueue *WorkerManager::CreateWorkerCrew(int num_worke
   return crew.worker_queue;
 }
 
-bool WorkerManager::KillWorkerCrew(std::string worker_name) {
+bool WorkerManager::KillWorkerCrew(std::string worker_name, bool force_clear_queue) {
   if(workers.count(worker_name) > 0) {
     auto queue = workers[worker_name].worker_queue;
     //Clear remaining events from queue
-    queue->clearEvents();
+    if(force_clear_queue)
+      queue->clearEvents();
 
     //Issue the termination event to all threads
     for(auto i:workers[worker_name].thread_ids)
