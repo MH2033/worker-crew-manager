@@ -44,7 +44,9 @@ private:
   };
   static std::map<std::string, WorkerCrew> workers;
   static void *WorkerThread(void *);
-
+  
+  //Since the class is meant to be used as a static class it's constructor is set to be private
+  WorkerManager();
 public:
   static PriorityEventQueue *CreateWorkerCrew(int num_workers, std::string worker_name);
   static bool KillWorkerCrew(std::string, bool force_clear_queue);

@@ -285,8 +285,8 @@ public:
 		return false;
 	}
 
-	template <typename F>
-	bool processIf(F && func)
+	template <typename Predictor>
+	bool processIf(Predictor && predictor)
 	{
 		if(! queueList.empty()) {
 			BufferedItemList tempList;
@@ -304,7 +304,7 @@ public:
 			if(! tempList.empty()) {
 				for(auto it = tempList.begin(); it != tempList.end(); ) {
 					if(doInvokeFuncWithQueuedEvent(
-							func,
+							predictor,
 							it->get(),
 							typename MakeIndexSequence<sizeof...(Args)>::Type())
 						) {
@@ -320,6 +320,61 @@ public:
 					}
 					else {
 						++it;
+					}
+				}
+
+				if (! tempList.empty()) {
+					std::lock_guard<Mutex> queueListLock(queueListMutex);
+					queueList.splice(queueList.begin(), tempList);
+				}
+
+				if(! idleList.empty()) {
+					std::lock_guard<Mutex> queueListLock(freeListMutex);
+					freeList.splice(freeList.end(), idleList);
+					
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	template <typename Predictor>
+	bool processUntil(Predictor && predictor)
+	{
+		if(! queueList.empty()) {
+			BufferedItemList tempList;
+			BufferedItemList idleList;
+
+			// Use a counter to tell the queue list is not empty during processing
+			// even though queueList is swapped to empty.
+			CounterGuard<decltype(queueEmptyCounter)> counterGuard(queueEmptyCounter);
+
+			{
+				std::lock_guard<Mutex> queueListLock(queueListMutex);
+				std::swap(queueList, tempList);
+			}
+
+			if(! tempList.empty()) {
+				for(auto it = tempList.begin(); it != tempList.end(); ) {
+					if(doInvokeFuncWithQueuedEvent(
+							predictor,
+							it->get(),
+							typename MakeIndexSequence<sizeof...(Args)>::Type())
+						) {
+						break;
+					}
+					else {
+						doDispatchQueuedEvent(
+							it->get(),
+							typename MakeIndexSequence<sizeof...(Args)>::Type()
+						);
+						it->clear();
+						
+						auto tempIt = it;
+						++it;
+						idleList.splice(idleList.end(), tempList, tempIt);
 					}
 				}
 
@@ -430,13 +485,21 @@ protected:
 	template <typename F, typename T, size_t ...Indexes>
 	bool doInvokeFuncWithQueuedEvent(F && func, T && item, IndexSequence<Indexes...>) const
 	{
-		return doInvokeFuncWithQueuedEventHelper(std::forward<F>(func), item.event, std::get<Indexes>(item.arguments)...);
+		return doInvokeFuncWithQueuedEventHelper(std::forward<F>(func), std::get<Indexes>(item.arguments)...);
 	}
 	
 	template <typename F>
-	bool doInvokeFuncWithQueuedEventHelper(F && func, const typename super::Event & /*e*/, Args ...args) const
+	auto doInvokeFuncWithQueuedEventHelper(F && func, Args ...args) const
+		-> typename std::enable_if<! CanInvoke<F>::value, bool>::type
 	{
 		return func(std::forward<Args>(args)...);
+	}
+
+	template <typename F>
+	auto doInvokeFuncWithQueuedEventHelper(F && func, Args .../*args*/) const
+		-> typename std::enable_if<CanInvoke<F>::value, bool>::type
+	{
+		return func();
 	}
 
 	void doEnqueue(QueuedEvent && item)
