@@ -20,13 +20,12 @@ int main() {
 	for(int i = 0; i < 100; i++)
 		queue->enqueue(WorkerManager::Event{1, 1}, &a);
 
-	this_thread::sleep_for(std::chrono::seconds(10));
+	// this_thread::sleep_for(std::chrono::seconds(10));
 
 
-	WorkerManager::KillWorkerCrew("test");
+	WorkerManager::KillWorkerCrew("test", false);
 
 	cout << "Worker Crew terminated" << endl;
-	this_thread::sleep_for(std::chrono::seconds(20));
-
-
+	// this_thread::sleep_for(std::chrono::seconds(20));
+	exit(EXIT_SUCCESS);
 }
