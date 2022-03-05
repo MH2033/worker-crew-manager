@@ -13,7 +13,7 @@ file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp
     )
 
 #Add all header files located include to headers list
-include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/inc)
 
 #Setting target name
 add_executable(${CMAKE_PROJECT_NAME} ${SRC_FILES})
