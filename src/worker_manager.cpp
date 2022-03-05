@@ -3,11 +3,11 @@
 #define TERMINATION_EVENT -2
 
 using namespace std;
-using namespace ir;
+using namespace mh;
 
-map<string, WorkerManager::WorkerCrew> WorkerManager::workers;
+map<string, WorkerCrewManager::WorkerCrew> WorkerCrewManager::workers;
 
-void *WorkerManager::WorkerThread(void *param){
+void *WorkerCrewManager::WorkerThread(void *param){
   auto queue = (PriorityEventQueue *)param;
 
   while(true) {
@@ -22,9 +22,9 @@ void *WorkerManager::WorkerThread(void *param){
   pthread_exit(NULL);
 }
 
-WorkerManager::PriorityEventQueue *WorkerManager::CreateWorkerCrew(int num_workers, std::string worker_name){
+WorkerCrewManager::PriorityEventQueue *WorkerCrewManager::createWorkerCrew(int num_workers, std::string worker_name){
   if(workers.count(worker_name) > 0)
-    throw runtime_error("Worker crew already exists");
+    throw Exception::WorkerCrewExists();
 
   WorkerCrew crew;
   crew.worker_queue = new PriorityEventQueue;
@@ -32,8 +32,9 @@ WorkerManager::PriorityEventQueue *WorkerManager::CreateWorkerCrew(int num_worke
     pthread_t tid;
     int ret = pthread_create(&tid, NULL, WorkerThread, crew.worker_queue);
     if(ret != 0){
+      //To-Do: Terminate potentially created threads
       delete crew.worker_queue;
-      throw runtime_error("Unable to create worker thread");
+      throw Exception::FailedToSpawnWorker();
     }
     crew.thread_ids.push_back(tid);
   }
@@ -41,11 +42,11 @@ WorkerManager::PriorityEventQueue *WorkerManager::CreateWorkerCrew(int num_worke
   return crew.worker_queue;
 }
 
-bool WorkerManager::KillWorkerCrew(std::string worker_name, bool force_clear_queue) {
+void WorkerCrewManager::KillWorkerCrew(std::string worker_name, bool finish_remained_jobs) {
   if(workers.count(worker_name) > 0) {
     auto queue = workers[worker_name].worker_queue;
-    //Clear remaining events from queue
-    if(force_clear_queue)
+    //Clear remaining events from queue if set;
+    if(!finish_remained_jobs)
       queue->clearEvents();
 
     //Issue the termination event to all threads
@@ -58,15 +59,16 @@ bool WorkerManager::KillWorkerCrew(std::string worker_name, bool force_clear_que
 
     delete queue;
     workers.erase(worker_name);
-    return true;
   }
-  return false;
+
+  throw Exception::WorkerCrewNotFound();
 }
 
 
-WorkerManager::PriorityEventQueue *WorkerManager::get_queue(std::string worker_name) {
+WorkerCrewManager::PriorityEventQueue *WorkerCrewManager::get_queue(std::string worker_name) {
   if(workers.count(worker_name) > 0)
     return workers[worker_name].worker_queue;
-  return nullptr;
+  
+  throw Exception::WorkerCrewNotFound();
 }
 

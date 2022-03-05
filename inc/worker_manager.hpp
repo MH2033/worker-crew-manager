@@ -1,5 +1,5 @@
-#ifndef WORKER_MANAGER_H
-#define WORKER_MANAGER_H
+#ifndef WORKER_CREW_MANAGER_H
+#define WORKER_CREW_MANAGER_H
 
 #include <map>
 #include <vector>
@@ -9,14 +9,21 @@
 #include "eventpp/eventqueue.h"
 
 
-namespace ir {
+namespace mh {
   
-class WorkerManager {
+class WorkerCrewManager {
 
 public:
   struct Event {
     int e;
     int priority;
+  };
+
+  class Exception : public std::exception {
+  public:
+    class WorkerCrewExists;
+    class FailedToSpawnWorker;
+    class WorkerCrewNotFound;
   };
 
 private:
@@ -46,15 +53,31 @@ private:
   static void *WorkerThread(void *);
   
   //Since the class is meant to be used as a static class it's constructor is set to be private
-  WorkerManager();
+  WorkerCrewManager();
 public:
-  static PriorityEventQueue *CreateWorkerCrew(int num_workers, std::string worker_name);
-  static bool KillWorkerCrew(std::string, bool force_clear_queue);
+  static PriorityEventQueue *createWorkerCrew(int num_workers, std::string worker_name);
+  static void KillWorkerCrew(std::string, bool force_clear_queue);
 
   static PriorityEventQueue *get_queue(std::string);
 };
 
+//Exceptions:
+class WorkerCrewManager::Exception::WorkerCrewExists : public WorkerCrewManager::Exception {
+  virtual const char* what() const noexcept {return "Worker crew already exists";}
+};
+
+class WorkerCrewManager::Exception::FailedToSpawnWorker : public WorkerCrewManager::Exception {
+  virtual const char* what() const noexcept {return "Failed to Create worker thread";}
+};
+
+class WorkerCrewManager::Exception::WorkerCrewNotFound : public WorkerCrewManager::Exception {
+  virtual const char* what() const noexcept {return "The requested worker Crew does not exist";}
+};
+
 }
+
+
+
 
 #endif
 
