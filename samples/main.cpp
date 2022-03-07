@@ -1,21 +1,14 @@
 #include <iostream>
 #include <thread> 
-#include "worker_manager.hpp"
+#include "worker_crew_manager.hpp"
 
 using namespace std;
 using namespace mh;
 
 int main() {
-	auto queue = WorkerCrewManager::createWorkerCrew(2, "test");
-	try{
-		auto queue1 = WorkerCrewManager::createWorkerCrew(2, "test");
-	}
+	auto queue = WorkerCrewManager::createWorkerCrew(2, "Sample");
 
-	catch(WorkerCrewManager::Exception &e){
-		cout << "Exception occured" << endl;
-		exit(EXIT_FAILURE);
-	}
-
+	//Append listener on event with id 1
 	queue->appendListener(1, [](WorkerCrewManager::Event, void *param){
 		auto num = (int *)param;
 		cout << "Received number: " << *num << endl;
@@ -28,11 +21,7 @@ int main() {
 		queue->enqueue(WorkerCrewManager::Event{1, 1}, new int(i));
 	}
 
-	// this_thread::sleep_for(std::chrono::seconds(10));
-
-
-	WorkerCrewManager::KillWorkerCrew("test", true);
+	WorkerCrewManager::KillWorkerCrew("Sample", false);
 	cout << "Worker Crew terminated" << endl;
-	// this_thread::sleep_for(std::chrono::seconds(20));
 	exit(EXIT_SUCCESS);
 }
