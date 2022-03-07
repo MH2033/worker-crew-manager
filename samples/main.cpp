@@ -6,7 +6,7 @@ using namespace std;
 using namespace mh;
 
 int main() {
-	auto queue = WorkerCrewManager::createWorkerCrew(2, "Sample");
+	auto queue = WorkerCrewManager::create_worker_crew(2, "Sample");
 
 	//Append listener on event with id 1
 	queue->appendListener(1, [](WorkerCrewManager::Event, void *param){
@@ -21,7 +21,7 @@ int main() {
 		queue->enqueue(WorkerCrewManager::Event{1, 1}, new int(i));
 	}
 
-	WorkerCrewManager::KillWorkerCrew("Sample", false);
+	WorkerCrewManager::kill_worker_crew("Sample", false);
 	cout << "Worker Crew terminated" << endl;
 	exit(EXIT_SUCCESS);
 }

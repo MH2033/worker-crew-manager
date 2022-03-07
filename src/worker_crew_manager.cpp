@@ -7,7 +7,7 @@ using namespace mh;
 
 map<string, WorkerCrewManager::WorkerCrew> WorkerCrewManager::workers;
 
-void *WorkerCrewManager::WorkerThread(void *param){
+void *WorkerCrewManager::worker_thread(void *param){
   auto queue = (PriorityEventQueue *)param;
 
   while(true) {
@@ -22,7 +22,7 @@ void *WorkerCrewManager::WorkerThread(void *param){
   pthread_exit(NULL);
 }
 
-WorkerCrewManager::PriorityEventQueue *WorkerCrewManager::createWorkerCrew(int num_workers, std::string worker_name){
+WorkerCrewManager::PriorityEventQueue *WorkerCrewManager::create_worker_crew(int num_workers, std::string worker_name){
   if(workers.count(worker_name) > 0)
     throw Exception::WorkerCrewExists();
 
@@ -30,7 +30,7 @@ WorkerCrewManager::PriorityEventQueue *WorkerCrewManager::createWorkerCrew(int n
   crew.worker_queue = new PriorityEventQueue;
   for(int i = 0; i < num_workers; i++){
     pthread_t tid;
-    int ret = pthread_create(&tid, NULL, WorkerThread, crew.worker_queue);
+    int ret = pthread_create(&tid, NULL, worker_thread, crew.worker_queue);
     if(ret != 0){
       //To-Do: Terminate potentially created threads
       delete crew.worker_queue;
@@ -42,7 +42,7 @@ WorkerCrewManager::PriorityEventQueue *WorkerCrewManager::createWorkerCrew(int n
   return crew.worker_queue;
 }
 
-void WorkerCrewManager::KillWorkerCrew(std::string worker_name, bool finish_remained_jobs) {
+void WorkerCrewManager::kill_worker_crew(std::string worker_name, bool finish_remained_jobs) {
   if(workers.count(worker_name) > 0) {
     auto queue = workers[worker_name].worker_queue;
     //Clear remaining events from queue if set;

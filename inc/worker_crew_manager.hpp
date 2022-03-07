@@ -50,13 +50,13 @@ private:
     PriorityEventQueue *worker_queue;
   };
   static std::map<std::string, WorkerCrew> workers;
-  static void *WorkerThread(void *);
+  static void *worker_thread(void *);
   
   //Since the class is meant to be used as a static class it's constructor is set to be private
   WorkerCrewManager();
 public:
-  static PriorityEventQueue *createWorkerCrew(int num_workers, std::string worker_name);
-  static void KillWorkerCrew(std::string, bool finish_remained_jobs);
+  static PriorityEventQueue *create_worker_crew(int num_workers, std::string worker_name);
+  static void kill_worker_crew(std::string, bool finish_remained_jobs);
 
   static PriorityEventQueue *get_queue(std::string);
 };

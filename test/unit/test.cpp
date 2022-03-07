@@ -5,7 +5,7 @@
 using namespace mh;
 
 TEST_CASE( "Creating duplicate instance", "[worker]" ) {
-  REQUIRE_NOTHROW(WorkerCrewManager::createWorkerCrew(2, "test"));
-  REQUIRE_THROWS_AS(WorkerCrewManager::createWorkerCrew(2, "test"), WorkerCrewManager::Exception::WorkerCrewExists);
+  REQUIRE_NOTHROW(WorkerCrewManager::create_worker_crew(2, "test"));
+  REQUIRE_THROWS_AS(WorkerCrewManager::create_worker_crew(2, "test"), WorkerCrewManager::Exception::WorkerCrewExists);
 
 }
