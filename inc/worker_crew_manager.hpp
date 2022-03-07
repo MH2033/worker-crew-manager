@@ -15,7 +15,7 @@ class WorkerCrewManager {
 
 public:
   struct Event {
-    int e;
+    int e_id;
     int priority;
   };
 
@@ -39,7 +39,7 @@ private:
     using QueueList = eventpp::OrderedQueueList<Item, Compare >;
 
     static int getEvent(const Event & event, void * const a) {
-      return event.e;
+      return event.e_id;
     }
   };
 
@@ -56,7 +56,7 @@ private:
   WorkerCrewManager();
 public:
   static PriorityEventQueue *createWorkerCrew(int num_workers, std::string worker_name);
-  static void KillWorkerCrew(std::string, bool force_clear_queue);
+  static void KillWorkerCrew(std::string, bool finish_remained_jobs);
 
   static PriorityEventQueue *get_queue(std::string);
 };
