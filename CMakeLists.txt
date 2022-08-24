@@ -21,11 +21,11 @@ file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp
 include_directories(${PROJECT_SOURCE_DIR}/inc)
 
 #Setting target name
-add_library(${CMAKE_PROJECT_NAME} STATIC ${PROJECT_SOURCE_DIR}/src/worker_crew_manager.cpp)
+add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCE_DIR}/src/worker_crew_manager.cpp)
 
-install(TARGETS ${CMAKE_PROJECT_NAME} ARCHIVE)
+install(TARGETS ${PROJECT_NAME} ARCHIVE)
 
-install(TARGETS ${CMAKE_PROJECT_NAME} PUBLIC_HEADER)
+install(TARGETS ${PROJECT_NAME} PUBLIC_HEADER)
 
 if(BUILD_SAMPLES)
     add_subdirectory(${PROJECT_SOURCE_DIR}/samples)
@@ -35,7 +35,7 @@ if(BUILD_TESTS)
   add_subdirectory(test)
 endif()
 
-target_link_libraries(${CMAKE_PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME}
                       pthread
 )
 
